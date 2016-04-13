@@ -32,7 +32,7 @@ var keyInput = {
 
 var bumper = function(xPosition){
   this.height = 120;
-  this.width = 75;
+  this.width = 25;
   this.xPosition = xPosition;
   this.yPosition = 0;
   this.moveDown = function(){
@@ -54,7 +54,7 @@ var bumper = function(xPosition){
   };
 }
 var playerOneBumper = new bumper(0)
-var playerTwoBumper = new bumper(825)
+var playerTwoBumper = new bumper(875)
 
 var ball = {
   height : 30,
@@ -64,9 +64,6 @@ var ball = {
   xVelocity : 5,
   yVelocity : 5,
   updatePosition : function(){
-    if(ball.xPosition < 10 || ball.xPosition > 860){
-      ball.xVelocity *= -1;
-    };
     if(ball.yPosition < 10 || ball.yPosition > 560){
       ball.yVelocity *= -1;
     };
@@ -75,12 +72,33 @@ var ball = {
   },
   draw : function(){
     context.fillRect(ball.xPosition, ball.yPosition, ball.width, ball.height);
+  },
+  reset : function(){
+    ball.xVelocity = 0;
+    ball.yVelocity = 0;
+    ball.xPosition = 435;
+    ball.yPosition = Math.floor(Math.random() * (521) + 30); //Generates random number from 30-550
+    setTimeout(function(){
+      ball.xVelocity = 5;
+      ball.yVelocity = 5;
+    },500);
   }
 };
 
+var score = function(playerID){
+  var player = document.getElementById(playerID);
+  this.score = parseInt(player.innerHTML, 10);
+  this.incrementScore = function(){
+    this.score += 1;
+    player.innerHTML = this.score;
+  };
+}
+var playerOneScore = new score("playerOneScore");
+var playerTwoScore = new score("playerTwoScore");
+
 function detectCollisions(){
-  pOneXMatch = (playerOneBumper.xPosition + 75) === ball.xPosition;
-  pTwoXMatch = playerTwoBumper.xPosition === (ball.xPosition + 30);
+  pOneXMatch = ((playerOneBumper.xPosition + 25) >= ball.xPosition) && ball.xPosition > 0;
+  pTwoXMatch = (playerTwoBumper.xPosition <= (ball.xPosition + 30)) && ((ball.xPosition + 30) < 900);
   pOneYMatch = (ball.yPosition <= (playerOneBumper.yPosition + 120)) && ((ball.yPosition + 30) >= playerOneBumper.yPosition);
   pTwoYMatch = (ball.yPosition <= (playerTwoBumper.yPosition + 120)) && ((ball.yPosition + 30) >= playerTwoBumper.yPosition);
   if(pOneXMatch && pOneYMatch){
@@ -91,8 +109,19 @@ function detectCollisions(){
   };
 };
 
+function detectScores(){
+  if(ball.xPosition < 10){
+    playerTwoScore.incrementScore();
+    ball.reset();
+  } else if(ball.xPosition > 860){
+    playerOneScore.incrementScore();
+    ball.reset();
+  };
+};
+
 function update(){
   detectCollisions();
+  detectScores();
   if(keyInput.w) playerOneBumper.moveUp();
   if(keyInput.s) playerOneBumper.moveDown();
   if(keyInput.up) playerTwoBumper.moveUp();
