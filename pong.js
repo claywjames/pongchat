@@ -56,34 +56,39 @@ var bumper = function(xPosition){
 var playerOneBumper = new bumper(0)
 var playerTwoBumper = new bumper(875)
 
-var ball = {
-  height : 30,
-  width : 30,
-  xPosition : 435,
-  yPosition : 285,
-  xVelocity : 5,
-  yVelocity : 5,
-  updatePosition : function(){
-    if(ball.yPosition < 10 || ball.yPosition > 560){
-      ball.yVelocity *= -1;
+var ball = function(){
+  this.height = 30;
+  this.width = 30;
+  this.xPosition = 435;
+  this.yPosition = 285;
+  this.angle = (Math.random()*70*Math.PI)/180;
+  this.velocity = 10;
+  this.xVelocity = Math.random() < .5 ? this.velocity*Math.cos(this.angle) : -this.velocity*Math.cos(this.angle);
+  this.yVelocity = Math.random() < .5 ? this.velocity*Math.sin(this.angle) : -this.velocity*Math.sin(this.angle);
+  this.updatePosition = function(){
+    if(this.yPosition < 10 || this.yPosition > 560){
+      this.yVelocity *= -1;
     };
-    ball.xPosition += ball.xVelocity;
-    ball.yPosition += ball.yVelocity;
+    this.xPosition += this.xVelocity;
+    this.yPosition += this.yVelocity;
   },
-  draw : function(){
-    context.fillRect(ball.xPosition, ball.yPosition, ball.width, ball.height);
+  this.draw = function(){
+    context.fillRect(this.xPosition, this.yPosition, this.width, this.height);
   },
-  reset : function(){
-    ball.xVelocity = 0;
-    ball.yVelocity = 0;
-    ball.xPosition = 435;
-    ball.yPosition = Math.floor(Math.random() * (521) + 30); //Generates random number from 30-550
+  this.reset = function(){
+    this.xVelocity = 0;
+    this.yVelocity = 0;
+    this.xPosition = 435;
+    this.yPosition = Math.floor(Math.random() * (521) + 30); //Generates random number from 30-550
     setTimeout(function(){
-      ball.xVelocity = 5;
-      ball.yVelocity = 5;
+      ball.velocity = 10;
+      ball.angle = ((Math.random()*70)*Math.PI)/180;
+      ball.xVelocity = Math.random() < .5 ? ball.velocity*Math.cos(ball.angle) : -ball.velocity*Math.cos(ball.angle);
+      ball.yVelocity = Math.random() < .5 ? ball.velocity*Math.sin(ball.angle) : -ball.velocity*Math.sin(ball.angle);
     },500);
   }
 };
+var ball = new ball();
 
 var score = function(playerID){
   var player = document.getElementById(playerID);
@@ -96,16 +101,36 @@ var score = function(playerID){
 var playerOneScore = new score("playerOneScore");
 var playerTwoScore = new score("playerTwoScore");
 
+var reboundInfo = {
+  intersection : 0,
+  normalizedIntersection : 0,
+  angleDegrees : 0,
+  angleRadians : 0
+}
 function detectCollisions(){
   pOneXMatch = ((playerOneBumper.xPosition + 25) >= ball.xPosition) && ball.xPosition > 0;
   pTwoXMatch = (playerTwoBumper.xPosition <= (ball.xPosition + 30)) && ((ball.xPosition + 30) < 900);
   pOneYMatch = (ball.yPosition <= (playerOneBumper.yPosition + 120)) && ((ball.yPosition + 30) >= playerOneBumper.yPosition);
   pTwoYMatch = (ball.yPosition <= (playerTwoBumper.yPosition + 120)) && ((ball.yPosition + 30) >= playerTwoBumper.yPosition);
-  if(pOneXMatch && pOneYMatch){
-    ball.xVelocity *= -1;
+  if((pOneXMatch && pOneYMatch) && (ball.xVelocity < 0)){
+    if(ball.velocity < 15) ball.velocity += .5;
+    reboundInfo.intersection = (playerOneBumper.yPosition + 60) - (ball.yPosition + 15);
+    reboundInfo.normalizedIntersection = reboundInfo.intersection/180;
+    reboundInfo.angleDegrees = reboundInfo.normalizedIntersection*75;
+    reboundInfo.angleRadians = (reboundInfo.angleDegrees*Math.PI)/180;
+    ball.angle = reboundInfo.angleRadians;
+    ball.xVelocity = ball.velocity*Math.cos(ball.angle);
+    ball.yVelocity = -ball.velocity*Math.sin(ball.angle);
   };
-  if(pTwoXMatch && pTwoYMatch){
-    ball.xVelocity *= -1;
+  if((pTwoXMatch && pTwoYMatch) && (ball.xVelocity > 0)){
+    if(ball.velocity < 15) ball.velocity += .5;
+    reboundInfo.intersection = (playerTwoBumper.yPosition + 60) - (ball.yPosition + 15);
+    reboundInfo.normalizedIntersection = reboundInfo.intersection/180;
+    reboundInfo.angleDegrees = reboundInfo.normalizedIntersection*75;
+    reboundInfo.angleRadians = (reboundInfo.angleDegrees*Math.PI)/180;
+    ball.angle = reboundInfo.angleRadians;
+    ball.xVelocity = -ball.velocity*Math.cos(ball.angle);
+    ball.yVelocity = -ball.velocity*Math.sin(ball.angle);
   };
 };
 
