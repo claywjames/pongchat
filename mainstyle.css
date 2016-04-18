@@ -8,8 +8,6 @@ header{
 #playerOneScore{
   position: relative;
   font-size: 50px;
-  height: auto;
-  width: auto;
   float: left;
   left: 50%;
   margin-left: -500px;
@@ -18,8 +16,6 @@ header{
 #playerTwoScore{
   position: relative;
   font-size: 50px;
-  height: auto;
-  width: auto;
   float: right;
   right: 50%;
   margin-right: -500px;
@@ -30,4 +26,13 @@ header{
   border: 1px solid black;
   left: 50%;
   margin-left: -450px;
+}
+
+#startInstructions{
+  position: absolute;
+  float: left;
+  font-size: 25px;
+  top: 75%;
+  left: 50%;
+  margin-left: -152.5px;
 }

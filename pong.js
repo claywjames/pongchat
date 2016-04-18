@@ -167,4 +167,13 @@ function mainloop(){
   window.requestAnimationFrame(mainloop);
 }
 
-mainloop();
+draw();
+var gameActive = false;
+document.addEventListener("keydown", function(event){
+  if(event.keyCode == 32 && gameActive == false){
+    gameActive = true;
+    var startInstructions = document.getElementById("startInstructions");
+    startInstructions.style.display = "none";
+    mainloop();
+  };
+});
