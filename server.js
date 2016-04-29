@@ -2,6 +2,7 @@ var express = require("express");
 var app = express();
 var server = require("http").createServer(app);
 var io = require("socket.io")(server);
+var uuid = require("node-uuid");
 
 
 server.listen(3000);
@@ -19,12 +20,14 @@ app.get("/twoplayer", function(req, res){
 });
 
 app.get("/twoplayer_online", function(req, res){
-  res.sendFile(__dirname + "/public/pong_online.html");
+  res.sendFile(__dirname + "/public/pong.html");
 });
 
 io.on('connection', function(client) {
-  console.log('Client connected...');
-  client.on('join', function(data) {
-    console.log(data);
+  client.userid = uuid();
+  console.log("Client connected.  ID: " + client.userid);
+  client.emit("onconnect", {id : client.userid});
+  client.on("disconnect", function(){
+    console.log("Client disconnected.  ID: " + client.userid);
   });
 });
