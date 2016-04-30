@@ -1,4 +1,5 @@
 if(window.location.href == "http://localhost:3000/twoplayer_online"){
+  var onlinePong = true;
   var client_script = document.createElement("script");
   client_script.setAttribute("src", "client.js");
   document.body.appendChild(client_script);
