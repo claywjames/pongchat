@@ -1,5 +1,8 @@
 if(window.location.href == "http://localhost:3000/twoplayer_online"){
   var onlinePong = true;
+  var role = null;
+  var game = null;
+  var socket = io.connect("http://localhost:3000");
   var client_script = document.createElement("script");
   client_script.setAttribute("src", "client.js");
   document.body.appendChild(client_script);
@@ -155,10 +158,20 @@ function detectScores(){
 function update(){
   detectCollisions();
   detectScores();
-  if(keyInput.w) playerOneBumper.moveUp();
-  if(keyInput.s) playerOneBumper.moveDown();
-  if(keyInput.up) playerTwoBumper.moveUp();
-  if(keyInput.down) playerTwoBumper.moveDown();
+  if(onlinePong){
+    if(role == "host"){
+      if(keyInput.w || keyInput.up) playerOneBumper.moveUp();
+      if(keyInput.s || keyInput.down) playerOneBumper.moveDown();
+    } else if(role == "client"){
+      if(keyInput.w || keyInput.up) playerTwoBumper.moveUp();
+      if(keyInput.s || keyInput.down) playerTwoBumper.moveDown();
+    }
+  }else{
+    if(keyInput.w) playerOneBumper.moveUp();
+    if(keyInput.s) playerOneBumper.moveDown();
+    if(keyInput.up) playerTwoBumper.moveUp();
+    if(keyInput.down) playerTwoBumper.moveDown();
+  }
   ball.updatePosition();
 }
 
@@ -179,9 +192,14 @@ draw();
 var gameActive = false;
 document.addEventListener("keydown", function(event){
   if(event.keyCode == 32 && gameActive == false){
-    gameActive = true;
-    var startInstructions = document.getElementById("startInstructions");
-    startInstructions.style.display = "none";
-    mainloop();
+    if(onlinePong){
+      console.log(role + " ready");
+      socket.emit("ready", {gameID : game, user : role});
+    }else{
+      gameActive = true;
+      var startInstructions = document.getElementById("startInstructions");
+      startInstructions.style.display = "none";
+      mainloop();
+    }
   };
 });

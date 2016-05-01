@@ -23,10 +23,14 @@ app.get("/twoplayer_online", function(req, res){
 
 var gameServer = {
   games : [],
+  activeGames : [],
   game : function(host){
     this.id = uuid();
     this.host = host;
     this.client = null;
+    this.hostReady = false;
+    this.clientReady = false;
+    this.gameActive = false;
   },
   createGame : function(host){
     var newGame = new gameServer.game(host);
@@ -39,8 +43,15 @@ var gameServer = {
     } else{
       var gameToJoin = gameServer.games.pop();
       gameToJoin.client = client;
+      gameServer.activeGames.push(gameToJoin);
       client.emit("client", {game : gameToJoin.id});
     }
+  },
+  findGame : function(gameID){
+    function correctGame(game){
+      return game.id == this;
+    }
+    return gameServer.activeGames.find(correctGame, gameID);
   }
 };
 
@@ -52,4 +63,14 @@ io.on('connection', function(client) {
     console.log("Client disconnected.  ID: " + client.userid);
   });
   gameServer.joinGame(client);
+  client.on("ready", function(data){
+    var game = gameServer.findGame(data.gameID);
+    var role = data.user;
+    if(role == "host") game.hostReady = true;
+    if(role == "client") game.clientReady = true;
+    if(game.hostReady && game.clientReady){
+      game.gameActive = true;
+      console.log("Game " + game.id + " active");
+    }
+  })
 });
