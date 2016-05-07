@@ -1,7 +1,9 @@
+var bottomDisplay = document.getElementById("bottomDisplay");
 if(window.location.href == "http://localhost:3000/twoplayer_online"){
   var onlinePong = true;
   var role = null;
   var game = null;
+  var opponentFound = false;
   var socket = io.connect("http://localhost:3000");
   var client_script = document.createElement("script");
   client_script.setAttribute("src", "client.js");
@@ -192,13 +194,13 @@ draw();
 var gameActive = false;
 document.addEventListener("keydown", function(event){
   if(event.keyCode == 32 && gameActive == false){
-    if(onlinePong){
+    if(onlinePong && opponentFound){
       console.log(role + " ready");
+      bottomDisplay.innerHTML = "Ready. Waiting on opponent";
       socket.emit("ready", {gameID : game, user : role});
     }else{
       gameActive = true;
-      var startInstructions = document.getElementById("startInstructions");
-      startInstructions.style.display = "none";
+      bottomDisplay.style.display = "none";
       mainloop();
     }
   };

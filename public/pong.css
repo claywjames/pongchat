@@ -29,11 +29,10 @@ header{
   margin-left: -450px;
 }
 
-#startInstructions{
-  position: absolute;
-  float: left;
+#bottomDisplay{
   font-size: 25px;
-  top: 75%;
-  left: 50%;
-  margin-left: -152.5px;
+  margin-top: 650px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
 }
