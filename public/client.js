@@ -1,10 +1,11 @@
-socket.on("onconnect", function(data){
+var socket = io.connect("http://localhost:3000");
+socket.on("connected", function(data){
   var userid = data.id;
   console.log("connected.  Userid is " + userid);
 });
 
 socket.on("disconnect", function(){
-  location.reload()
+  location.reload();
 })
 
 socket.on("host", function(data){
@@ -31,4 +32,14 @@ socket.on("begin", function(){
   gameActive = true;
   bottomDisplay.style.display = "none";
   mainloop();
+});
+
+socket.on("update", function(data){
+  if(role == "host"){
+    playerTwoBumper.yPosition = data.position;
+  }else{
+    playerOneBumper.yPosition = data.position;
+    ball.xPosition = data.ballX;
+    ball.yPosition = data.ballY;
+  }
 });

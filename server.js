@@ -31,6 +31,10 @@ var gameServer = {
     this.hostReady = false;
     this.clientReady = false;
     this.gameActive = false;
+    this.bumperOnePos = 0;
+    this.bumperTwoPos = 0;
+    this.ballX = 435;
+    this.ballY = 285;
   },
   createGame : function(host){
     var newGame = new gameServer.game(host);
@@ -80,7 +84,7 @@ var gameServer = {
 
 io.on('connection', function(client) {
   console.log("Client connected.  ID: " + client.id);
-  client.emit("onconnect", {id : client.id});
+  client.emit("connected", {id : client.id});
   client.on("disconnect", function(){
     console.log("Client disconnected.  ID: " + client.id);
     if(typeof gameServer.findGameByClient(client) != "undefined"){
@@ -105,5 +109,26 @@ io.on('connection', function(client) {
       io.to(game.host.id).emit("begin");
       io.to(game.client.id).emit("begin");
     }
-  })
+  });
+  client.on("host_update", function(data){
+    var game = gameServer.findGameByClient(client);
+    game.bumperOnePos = data.position;
+    game.ballX = data.ballX;
+    game.ballY = data.ballY;
+  });
+  client.on("client_update", function(data){
+    var game = gameServer.findGameByClient(client);
+    game.bumperTwoPos = data.position;
+  });
 });
+
+setInterval(function(){
+  for(var i = 0; i < gameServer.joinedGames.length; i++){
+    io.to(gameServer.joinedGames[i].host.id).emit("update", {position: gameServer.joinedGames[i].bumperTwoPos});
+    io.to(gameServer.joinedGames[i].client.id).emit("update", {
+      position: gameServer.joinedGames[i].bumperOnePos,
+      ballX: gameServer.joinedGames[i].ballX,
+      ballY: gameServer.joinedGames[i].ballY
+    });
+  }
+}, 45)

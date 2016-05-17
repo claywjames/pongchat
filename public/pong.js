@@ -4,7 +4,6 @@ if(window.location.href == "http://localhost:3000/twoplayer_online"){
   var role = null;
   var game = null;
   var opponentFound = false;
-  var socket = io.connect("http://localhost:3000");
   var client_script = document.createElement("script");
   client_script.setAttribute("src", "client.js");
   document.body.appendChild(client_script);
@@ -174,7 +173,18 @@ function update(){
     if(keyInput.up) playerTwoBumper.moveUp();
     if(keyInput.down) playerTwoBumper.moveDown();
   }
-  ball.updatePosition();
+  if(!onlinePong || role == "host") ball.updatePosition();
+  if(onlinePong && role == "host"){
+    socket.emit("host_update", {
+      position: playerOneBumper.yPosition,
+      ballX: ball.xPosition,
+      ballY: ball.yPosition
+    });
+  }else if(onlinePong && role == "client"){
+    socket.emit("client_update", {
+      position: playerTwoBumper.yPosition
+    });
+  }
 }
 
 function draw(){
