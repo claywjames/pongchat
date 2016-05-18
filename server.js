@@ -131,4 +131,4 @@ setInterval(function(){
       ballY: gameServer.joinedGames[i].ballY
     });
   }
-}, 45)
+}, 16)
