@@ -1,4 +1,4 @@
-var socket = io.connect("http://localhost:3000");
+var socket = io.connect();
 socket.on("connected", function(data){
   var userid = data.id;
   console.log("connected.  Userid is " + userid);
@@ -12,7 +12,7 @@ socket.on("host", function(data){
   game = data.game;
   role = "host";
   console.log("You are the host of game " + game);
-    bottomDisplay.innerHTML = "Searching for opponent";
+  bottomDisplay.innerHTML = "Searching for opponent";
 });
 
 socket.on("client", function(data){
@@ -39,7 +39,16 @@ socket.on("update", function(data){
     playerTwoBumper.yPosition = data.position;
   }else{
     playerOneBumper.yPosition = data.position;
-    ball.xPosition = data.ballX;
-    ball.yPosition = data.ballY;
   }
+  ball.xPosition = data.ballX;
+  ball.yPosition = data.ballY;
 });
+
+socket.on("score", function(data){
+  console.log("score");
+  if(data.player == "p1"){
+    playerOneScore.incrementScore();
+  }else if(data.player == "p2"){
+    playerTwoScore.incrementScore();
+  }
+})

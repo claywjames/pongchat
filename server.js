@@ -3,7 +3,7 @@ var app = express();
 var server = require("http").createServer(app);
 var io = require("socket.io")(server);
 var uuid = require("node-uuid");
-
+var pong = require(__dirname + "/public/pong");
 
 server.listen(3000);
 console.log("running...");
@@ -31,10 +31,11 @@ var gameServer = {
     this.hostReady = false;
     this.clientReady = false;
     this.gameActive = false;
-    this.bumperOnePos = 0;
-    this.bumperTwoPos = 0;
-    this.ballX = 435;
-    this.ballY = 285;
+    this.bumperOne = new pong.bumper(0);
+    this.bumperTwo = new pong.bumper(875);
+    this.ball = new pong.ball();
+    this.p1Score = 0;
+    this.p2Score = 0;
   },
   createGame : function(host){
     var newGame = new gameServer.game(host);
@@ -112,23 +113,38 @@ io.on('connection', function(client) {
   });
   client.on("host_update", function(data){
     var game = gameServer.findGameByClient(client);
-    game.bumperOnePos = data.position;
-    game.ballX = data.ballX;
-    game.ballY = data.ballY;
+    game.bumperOne.yPosition = data.position;
   });
   client.on("client_update", function(data){
     var game = gameServer.findGameByClient(client);
-    game.bumperTwoPos = data.position;
+    game.bumperTwo.yPosition = data.position;
   });
 });
 
 setInterval(function(){
   for(var i = 0; i < gameServer.joinedGames.length; i++){
-    io.to(gameServer.joinedGames[i].host.id).emit("update", {position: gameServer.joinedGames[i].bumperTwoPos});
-    io.to(gameServer.joinedGames[i].client.id).emit("update", {
-      position: gameServer.joinedGames[i].bumperOnePos,
-      ballX: gameServer.joinedGames[i].ballX,
-      ballY: gameServer.joinedGames[i].ballY
-    });
+    if(gameServer.joinedGames[i].gameActive){
+      game = gameServer.joinedGames[i];
+      io.to(game.host.id).emit("update", {
+        position: game.bumperTwo.yPosition,
+        ballX: game.ball.xPosition,
+        ballY: game.ball.yPosition
+      });
+      io.to(game.client.id).emit("update", {
+        position: game.bumperOne.yPosition,
+        ballX: game.ball.xPosition,
+        ballY: game.ball.yPosition
+      });
+      pong.detectCollisions(game.bumperOne, game.bumperTwo, game.ball)
+      scorer = pong.detectScores(game.p1Score, game.p2Score, game.ball);
+      if(scorer == "p1"){
+        io.to(game.host.id).emit("score",{player: "p1"});
+        io.to(game.client.id).emit("score",{player: "p1"});
+      }else if(scorer == "p2"){
+        io.to(game.host.id).emit("score",{player: "p2"});
+        io.to(game.client.id).emit("score",{player: "p2"});
+      }
+      game.ball.updatePosition();
+    }
   }
 }, 16)
