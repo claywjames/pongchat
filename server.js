@@ -125,16 +125,6 @@ setInterval(function(){
   for(var i = 0; i < gameServer.joinedGames.length; i++){
     if(gameServer.joinedGames[i].gameActive){
       game = gameServer.joinedGames[i];
-      io.to(game.host.id).emit("update", {
-        position: game.bumperTwo.yPosition,
-        ballX: game.ball.xPosition,
-        ballY: game.ball.yPosition
-      });
-      io.to(game.client.id).emit("update", {
-        position: game.bumperOne.yPosition,
-        ballX: game.ball.xPosition,
-        ballY: game.ball.yPosition
-      });
       pong.detectCollisions(game.bumperOne, game.bumperTwo, game.ball)
       scorer = pong.detectScores(game.p1Score, game.p2Score, game.ball);
       if(scorer == "p1"){
@@ -145,6 +135,30 @@ setInterval(function(){
         io.to(game.client.id).emit("score",{player: "p2"});
       }
       game.ball.updatePosition();
+      var data = {
+        b1Position: game.bumperOne.yPosition,
+        b2Position: game.bumperTwo.yPosition,
+        ballX: game.ball.xPosition,
+        ballY: game.ball.yPosition
+      }
+      io.to(game.host.id).emit("update", data);
+      io.to(game.client.id).emit("update", data);
     }
   }
 }, 16)
+
+// setInterval(function(){
+//   for(var i = 0; i < gameServer.joinedGames.length; i++){
+//     if(gameServer.joinedGames[i].gameActive){
+//       game = gameServer.joinedGames[i];
+//       let data = {
+//         b1Position: game.bumperOne.yPosition,
+//         b2Position: game.bumperTwo.yPosition,
+//         ballX: game.ball.xPosition,
+//         ballY: game.ball.yPosition
+//       }
+//       io.to(game.host.id).emit("update", data);
+//       io.to(game.client.id).emit("update", data);
+//     }
+//   }
+// }, 96)

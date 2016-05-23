@@ -59,26 +59,24 @@ var ball = function(){
 };
 
 function detectCollisions(b1, b2, ball){
-  pOneXMatch = ((b1.xPosition + 25) >= ball.xPosition) && ball.xPosition > 0;
-  pTwoXMatch = (b2.xPosition <= (ball.xPosition + 30)) && ((ball.xPosition + 30) < 900);
-  pOneYMatch = (ball.yPosition <= (b1.yPosition + 120)) && ((ball.yPosition + 30) >= b1.yPosition);
-  pTwoYMatch = (ball.yPosition <= (b2.yPosition + 120)) && ((ball.yPosition + 30) >= b2.yPosition);
+  var pOneXMatch = ((b1.xPosition + 25) >= ball.xPosition) && ball.xPosition > 0;
+  var pTwoXMatch = (b2.xPosition <= (ball.xPosition + 30)) && ((ball.xPosition + 30) < 900);
+  var pOneYMatch = (ball.yPosition <= (b1.yPosition + 120)) && ((ball.yPosition + 30) >= b1.yPosition);
+  var pTwoYMatch = (ball.yPosition <= (b2.yPosition + 120)) && ((ball.yPosition + 30) >= b2.yPosition);
   if((pOneXMatch && pOneYMatch) && (ball.xVelocity < 0)){
-    if(ball.velocity < 15) ball.velocity += .5;
-    intersection = (b1.yPosition + 60) - (ball.yPosition + 15);
-    normalizedIntersection = intersection/180;
-    angleDegrees = normalizedIntersection*75;
-    angleRadians = (angleDegrees*Math.PI)/180;
+    var intersection = (b1.yPosition + 60) - (ball.yPosition + 15);
+    var normalizedIntersection = intersection/180;
+    var angleDegrees = normalizedIntersection*75;
+    var angleRadians = (angleDegrees*Math.PI)/180;
     ball.angle = angleRadians;
     ball.xVelocity = ball.velocity*Math.cos(ball.angle);
     ball.yVelocity = -ball.velocity*Math.sin(ball.angle);
   };
   if((pTwoXMatch && pTwoYMatch) && (ball.xVelocity > 0)){
-    if(ball.velocity < 15) ball.velocity += .5;
-    intersection = (b2.yPosition + 60) - (ball.yPosition + 15);
-    normalizedIntersection = intersection/180;
-    angleDegrees = normalizedIntersection*75;
-    angleRadians = (angleDegrees*Math.PI)/180;
+    var intersection = (b2.yPosition + 60) - (ball.yPosition + 15);
+    var normalizedIntersection = intersection/180;
+    var angleDegrees = normalizedIntersection*75;
+    var angleRadians = (angleDegrees*Math.PI)/180;
     ball.angle = angleRadians;
     ball.xVelocity = -ball.velocity*Math.cos(ball.angle);
     ball.yVelocity = -ball.velocity*Math.sin(ball.angle);
