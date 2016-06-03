@@ -29,7 +29,9 @@ var gameServer = {
     this.host = host;
     this.client = null;
     this.hostReady = false;
+    this.hostLatency = 0;
     this.clientReady = false;
+    this.clientLatency = 0;
     this.gameActive = false;
     this.bumperOne = new pong.bumper(0);
     this.bumperTwo = new pong.bumper(875);
@@ -113,52 +115,74 @@ io.on('connection', function(client) {
   });
   client.on("host_update", function(data){
     var game = gameServer.findGameByClient(client);
-    game.bumperOne.yPosition = data.position;
+    game.hostLatency = (2 * (Date.now() - data.t)) + 64;
+    if(data.request == "up"){game.bumperOne.moveUp()}
+    else if(data.request == "down"){game.bumperOne.moveDown()}
+    game.bumperOne.pastStates.push(game.bumperOne.yPosition);
+    game.bumperOne.pastStates.splice(0,1);
   });
   client.on("client_update", function(data){
     var game = gameServer.findGameByClient(client);
-    game.bumperTwo.yPosition = data.position;
+    game.clientLatency = (2 * (Date.now() - data.t)) + 64;
+    if(data.request == "up"){game.bumperTwo.moveUp()}
+    else if(data.request == "down"){game.bumperTwo.moveDown()}
+    game.bumperTwo.pastStates.push(game.bumperTwo.yPosition);
+    game.bumperTwo.pastStates.splice(0,1);
   });
 });
+
+var framesBehind = 0;
+setInterval(function(){
+  for(var i = 0; i < gameServer.joinedGames.length; i++){
+    if(gameServer.joinedGames[i].gameActive){
+      game = gameServer.joinedGames[i];
+      var curBallX = game.ball.xPosition;
+      var curBallY = game.ball.yPosition;
+      if(game.ball.xPosition < 450){
+        framesBehind = Math.floor(game.hostLatency / 16) > 50 ? framesBehind : Math.floor(game.hostLatency / 16);
+        game.ball.xPosition = game.ball.pastStates[(game.ball.pastStates.length - framesBehind) - 1][0];
+        game.ball.yPosition = game.ball.pastStates[(game.ball.pastStates.length - framesBehind) - 1][1];
+      }else{
+        framesBehind = Math.floor(game.clientLatency / 16) > 50 ? framesBehind : Math.floor(game.clientLatency / 16);
+        game.ball.xPosition = game.ball.pastStates[(game.ball.pastStates.length - framesBehind) - 1][0];
+        game.ball.yPosition = game.ball.pastStates[(game.ball.pastStates.length - framesBehind) - 1][1];
+      }
+      if(pong.detectCollisions(game.bumperOne, game.bumperTwo, game.ball)){
+        game.ball.pastStates.splice((game.ball.pastStates.length - framesBehind) - 1);
+      }
+      scorer = pong.detectScores(game.p1Score, game.p2Score, game.ball);
+      if(scorer == "p1"){
+        io.to(game.host.id).emit("score",{player: "p1"});
+        io.to(game.client.id).emit("score",{player: "p1"});
+        game.ball.pastStates.splice((game.ball.pastStates.length - framesBehind) - 1);
+      }else if(scorer == "p2"){
+        io.to(game.host.id).emit("score",{player: "p2"});
+        io.to(game.client.id).emit("score",{player: "p2"});
+        game.ball.pastStates.splice((game.ball.pastStates.length - framesBehind) - 1);
+      }else{
+        game.ball.xPosition = curBallX;
+        game.ball.yPosition = curBallY;
+      }
+      game.ball.updatePosition();
+    }
+  }
+}, 16)
 
 setInterval(function(){
   for(var i = 0; i < gameServer.joinedGames.length; i++){
     if(gameServer.joinedGames[i].gameActive){
       game = gameServer.joinedGames[i];
-      pong.detectCollisions(game.bumperOne, game.bumperTwo, game.ball)
-      scorer = pong.detectScores(game.p1Score, game.p2Score, game.ball);
-      if(scorer == "p1"){
-        io.to(game.host.id).emit("score",{player: "p1"});
-        io.to(game.client.id).emit("score",{player: "p1"});
-      }else if(scorer == "p2"){
-        io.to(game.host.id).emit("score",{player: "p2"});
-        io.to(game.client.id).emit("score",{player: "p2"});
-      }
-      game.ball.updatePosition();
-      var data = {
-        b1Position: game.bumperOne.yPosition,
-        b2Position: game.bumperTwo.yPosition,
-        ballX: game.ball.xPosition,
-        ballY: game.ball.yPosition
-      }
-      io.to(game.host.id).emit("update", data);
-      io.to(game.client.id).emit("update", data);
+      var b1Positions = game.bumperOne.pastStates.slice(game.bumperOne.pastStates.length - 5);
+      var b2Positions = game.bumperTwo.pastStates.slice(game.bumperTwo.pastStates.length - 5);
+      var ballPositions = game.ball.pastStates.slice(game.ball.pastStates.length - 5);
+      io.to(game.host.id).emit("update", {
+        b2Positions: b2Positions,
+        ballPositions: ballPositions
+      });
+      io.to(game.client.id).emit("update", {
+        b1Positions: b1Positions,
+        ballPositions: ballPositions
+      });
     }
   }
-}, 16)
-
-// setInterval(function(){
-//   for(var i = 0; i < gameServer.joinedGames.length; i++){
-//     if(gameServer.joinedGames[i].gameActive){
-//       game = gameServer.joinedGames[i];
-//       let data = {
-//         b1Position: game.bumperOne.yPosition,
-//         b2Position: game.bumperTwo.yPosition,
-//         ballX: game.ball.xPosition,
-//         ballY: game.ball.yPosition
-//       }
-//       io.to(game.host.id).emit("update", data);
-//       io.to(game.client.id).emit("update", data);
-//     }
-//   }
-// }, 96)
+}, 64)

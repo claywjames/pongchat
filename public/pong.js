@@ -5,23 +5,28 @@ var bumper = function(xPosition){
   this.width = 25;
   this.xPosition = xPosition;
   this.yPosition = 0;
+  if(server) this.pastStates = [
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0
+  ];
   this.moveDown = function(){
     if(this.yPosition <= 465){
       this.yPosition += 15;
     } else if(this.yPosition < 480){
       this.yPosition += (480 - this.yPosition);
-    };
-  };
+    }
+  }
   this.moveUp = function(){
     if(this.yPosition >= 15){
       this.yPosition -=15;
     } else if(this.yPosition > 0){
       this.yPosition += this.yPosition;
-    };
-  };
+    }
+  }
   this.draw = function(){
     context.fillRect(this.xPosition, this.yPosition, this.width, this.height);
-  };
+  }
 }
 
 var ball = function(){
@@ -33,7 +38,19 @@ var ball = function(){
   this.velocity = 10;
   this.xVelocity = Math.random() < .5 ? this.velocity*Math.cos(this.angle) : -this.velocity*Math.cos(this.angle);
   this.yVelocity = Math.random() < .5 ? this.velocity*Math.sin(this.angle) : -this.velocity*Math.sin(this.angle);
+  if(server) this.pastStates = [
+    [435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],
+    [435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],
+    [435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],
+    [435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],
+    [435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],
+    [435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285]
+  ];
   this.updatePosition = function(){
+    if(server){
+      this.pastStates.push([this.xPosition, this.yPosition]);
+      if(this.pastStates.length > 60) this.pastStates.splice(0,1);
+    }
     if(this.yPosition < 10 || this.yPosition > 560){
       this.yVelocity *= -1;
     };
@@ -71,6 +88,7 @@ function detectCollisions(b1, b2, ball){
     ball.angle = angleRadians;
     ball.xVelocity = ball.velocity*Math.cos(ball.angle);
     ball.yVelocity = -ball.velocity*Math.sin(ball.angle);
+    return true;
   };
   if((pTwoXMatch && pTwoYMatch) && (ball.xVelocity > 0)){
     var intersection = (b2.yPosition + 60) - (ball.yPosition + 15);
@@ -80,11 +98,13 @@ function detectCollisions(b1, b2, ball){
     ball.angle = angleRadians;
     ball.xVelocity = -ball.velocity*Math.cos(ball.angle);
     ball.yVelocity = -ball.velocity*Math.sin(ball.angle);
+    return true;
   };
+  return false;
 };
 
 function detectScores(p1, p2, ball){
-  if(ball.xPosition < 10){
+  if((ball.xPosition < 10) && (ball.xVelocity < 0)){
     if(server){
       p2 += 1;
       ball.reset();
@@ -92,8 +112,8 @@ function detectScores(p1, p2, ball){
     }else{
       p2.incrementScore();
     }
-  ball.reset();
-  }else if(ball.xPosition > 860){
+    ball.reset();
+  }else if((ball.xPosition > 860) && (ball.xVelocity > 0)){
     if(server){
       p1 += 1;
       ball.reset();
@@ -101,8 +121,8 @@ function detectScores(p1, p2, ball){
     }else{
       p1.incrementScore();
     }
-  ball.reset();
-  };
+    ball.reset();
+  }
 };
 
 if(typeof module != "undefined"){
@@ -120,7 +140,10 @@ if(!server){
     var onlinePong = true;
     var role = null;
     var game = null;
+    var updateIndex = 0;
     var opponentFound = false;
+    var opponentPositions = [0,0,0,0,0,0,0,0];
+    var ballPositions = [[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285],[435, 285]];
     var client_script = document.createElement("script");
     client_script.setAttribute("src", "client.js");
     document.body.appendChild(client_script);
@@ -168,17 +191,45 @@ if(!server){
   var playerTwoScore = new score("playerTwoScore");
   function update(){
     if(onlinePong){
-      if(role == "host"){
-        if(keyInput.w || keyInput.up) playerOneBumper.moveUp();
-        if(keyInput.s || keyInput.down) playerOneBumper.moveDown();
-      } else if(role == "client"){
-        if(keyInput.w || keyInput.up) playerTwoBumper.moveUp();
-        if(keyInput.s || keyInput.down) playerTwoBumper.moveDown();
+      var up = (keyInput.w || keyInput.up) ? true : false;
+      var down = (keyInput.s || keyInput.down) ? true : false;
+      if(up && !down){
+        if(role == "host"){
+          socket.emit("host_update", {request: "up", t: Date.now()});
+          playerOneBumper.moveUp();
+        }else{
+          socket.emit("client_update", {request: "up", t: Date.now()});
+          playerTwoBumper.moveUp();
+        }
+      }else if(!up && down){
+        if(role == "host"){
+          socket.emit("host_update", {request: "down", t: Date.now()});
+          playerOneBumper.moveDown();
+        }else{
+          socket.emit("client_update", {request: "down", t: Date.now()});
+          playerTwoBumper.moveDown();
+        }
+      }
+      else{
+        if(role == "host"){
+          socket.emit("host_update", {request: "none", t: Date.now()});
+        }else{
+          socket.emit("client_update", {request: "none", t: Date.now()});
+        }
       }
       if(role == "host"){
-        socket.emit("host_update", {position: playerOneBumper.yPosition});
+        playerTwoBumper.yPosition = opponentPositions[updateIndex];
       }else{
-        socket.emit("client_update", {position: playerTwoBumper.yPosition});
+        playerOneBumper.yPosition = opponentPositions[updateIndex];
+      }
+      ball.xPosition = ballPositions[updateIndex][0];
+      ball.yPosition = ballPositions[updateIndex][1];
+      updateIndex += 1;
+      if(detectCollisions(playerOneBumper, playerTwoBumper, ball)){
+        for(var i = updateIndex; i < 5; i++){
+          ball.updatePosition();
+          ballPositions[updateIndex] = [ball.xPosition, ball.yPosition];
+        }
       }
     }else{
       detectCollisions(playerOneBumper, playerTwoBumper, ball);

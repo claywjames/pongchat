@@ -34,22 +34,14 @@ socket.on("begin", function(){
   mainloop();
 });
 
-// let auth_ball_pos = [];
-// let inter_ball_pos = [];
-// let auth_b1_pos = [];
-// let inter_b1_pos = [];
-// let auth_b2_pos = [];
-// let inter_b2_pos = [];
 socket.on("update", function(data){
   if(role == "host"){
-    playerOneBumper.yPosition = data.b1Position;
-    playerTwoBumper.yPosition = data.b2Position;
+    opponentPositions = data.b2Positions;
   }else{
-    playerTwoBumper.yPosition = data.b2Position;
-    playerOneBumper.yPosition = data.b1Position;
+    opponentPositions = data.b1Positions;
   }
-  ball.xPosition = data.ballX;
-  ball.yPosition = data.ballY;
+  ballPositions = data.ballPositions;
+  updateIndex = 0;
 });
 
 socket.on("score", function(data){
