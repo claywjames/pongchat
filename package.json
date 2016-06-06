@@ -1,0 +1,25 @@
+{
+  "name": "pongchat",
+  "version": "1.0.0",
+  "description": "A website for playing pong and chatting with other users.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/claywjames/pongchat.git"
+  },
+  "author": "Clay James",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/claywjames/pongchat/issues"
+  },
+  "homepage": "https://github.com/claywjames/pongchat#readme",
+  "dependencies": {
+    "express": "^4.13.4",
+    "node-uuid": "^1.4.7",
+    "socket.io": "^1.4.6"
+  }
+}
