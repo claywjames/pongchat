@@ -149,6 +149,9 @@ setInterval(function(){
       }
       if(pong.detectCollisions(game.bumperOne, game.bumperTwo, game.ball)){
         game.ball.pastStates.splice((game.ball.pastStates.length - framesBehind) - 1);
+        var collision = true;
+      }else{
+        var collision = false;
       }
       scorer = pong.detectScores(game.p1Score, game.p2Score, game.ball);
       if(scorer == "p1"){
@@ -159,7 +162,7 @@ setInterval(function(){
         io.to(game.host.id).emit("score",{player: "p2"});
         io.to(game.client.id).emit("score",{player: "p2"});
         game.ball.pastStates.splice((game.ball.pastStates.length - framesBehind) - 1);
-      }else{
+      }else if(!collision){
         game.ball.xPosition = curBallX;
         game.ball.yPosition = curBallY;
       }

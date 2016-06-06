@@ -228,7 +228,7 @@ if(!server){
       if(detectCollisions(playerOneBumper, playerTwoBumper, ball)){
         for(var i = updateIndex; i < 5; i++){
           ball.updatePosition();
-          ballPositions[updateIndex] = [ball.xPosition, ball.yPosition];
+          ballPositions[i] = [ball.xPosition, ball.yPosition];
         }
       }
     }else{
