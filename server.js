@@ -5,7 +5,7 @@ var io = require("socket.io")(server);
 var uuid = require("node-uuid");
 var pong = require(__dirname + "/public/pong");
 
-server.listen(3000);
+server.listen(process.env.port || 3000);
 console.log("running...");
 
 
