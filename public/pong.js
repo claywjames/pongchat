@@ -259,10 +259,12 @@ if(!server){
   var gameActive = false;
   document.addEventListener("keydown", function(event){
     if(event.keyCode == 32 && gameActive == false){
-      if(onlinePong && opponentFound){
-        console.log(role + " ready");
-        bottomDisplay.innerHTML = "Ready. Waiting on opponent";
-        socket.emit("ready", {gameID : game, user : role});
+      if(onlinePong){
+        if(opponentFound){
+          console.log(role + " ready");
+          bottomDisplay.innerHTML = "Ready. Waiting on opponent";
+          socket.emit("ready", {gameID : game, user : role});
+        }
       }else{
         gameActive = true;
         bottomDisplay.style.display = "none";
