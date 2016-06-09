@@ -151,8 +151,8 @@ if(!server){
     var game = null; //game id
     var updateIndex = 0; //used to loop through frames given by server in array form
     var opponentFound = false;
-    var opponentPositions = Array(30).fill(0); //variable updated by server and looped through with updateIndex; length is arbitrary since array is replaced every 4 ticks
-    var ballPositions = Array(30).fill([435, 285]); //variable updated by server and looped through with updateIndex; length is arbitrary since array is replaced every 4 ticks
+    var opponentPositions = Array(100).fill(0); //variable updated by server and looped through with updateIndex; length is arbitrary since array is replaced every 4 ticks
+    var ballPositions = Array(100).fill([435, 285]); //variable updated by server and looped through with updateIndex; length is arbitrary since array is replaced every 4 ticks
     //Adds the client.js file to the pong html page
     var client_script = document.createElement("script");
     client_script.setAttribute("src", "client.js");
@@ -245,6 +245,7 @@ if(!server){
       ball.xPosition = ballPositions[updateIndex][0];
       ball.yPosition = ballPositions[updateIndex][1];
       updateIndex += 1;
+      console.log(updateIndex);
 
       //implementing client side prediction on collisions
       if(detectCollisions(playerOneBumper, playerTwoBumper, ball)){
