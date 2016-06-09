@@ -1,40 +1,46 @@
-var socket = io.connect();
+//This file provides the instructions for dealing with information from the server
+var socket = io.connect() //connect to server
+
 socket.on("connected", function(data){
+  //runs after server is connected
   var userid = data.id;
-  console.log("connected.  Userid is " + userid);
-});
+})
 
 socket.on("disconnect", function(){
-  location.reload();
+  //runs if the client's opponent disconnects from the server
+  location.reload()
 })
 
 socket.on("host", function(data){
+  //runs if server declares this client the host of a game
   game = data.game;
   role = "host";
-  console.log("You are the host of game " + game);
   bottomDisplay.innerHTML = "Searching for opponent";
-});
+})
 
 socket.on("client", function(data){
+  //runs if the server declares this client the client of a game
   game = data.game;
   role = "client";
   opponentFound = true;
   bottomDisplay.innerHTML = "Opponent found. Press space when ready.";
-  console.log("You are the client of game " + game);
-});
+})
 
 socket.on("clientFound", function(){
+  //runs if this client is the host of a game and the server finds a client for the game
   opponentFound = true;
   bottomDisplay.innerHTML = "Opponent found. Press space when ready.";
 })
 
 socket.on("begin", function(){
+  //runs when both the host and client of a game have indicated they are ready to begin
   gameActive = true;
   bottomDisplay.style.display = "none";
-  mainloop();
-});
+  mainloop()
+})
 
 socket.on("update", function(data){
+  //runs when the client recieves an update from the server
   if(role == "host"){
     opponentPositions = data.b2Positions;
   }else{
@@ -42,12 +48,13 @@ socket.on("update", function(data){
   }
   ballPositions = data.ballPositions;
   updateIndex = 0;
-});
+})
 
 socket.on("score", function(data){
+  //runs when the server detects a score
   if(data.player == "p1"){
-    playerOneScore.incrementScore();
+    playerOneScore.incrementScore()
   }else if(data.player == "p2"){
-    playerTwoScore.incrementScore();
+    playerTwoScore.incrementScore()
   }
 })
