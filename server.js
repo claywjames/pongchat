@@ -201,9 +201,9 @@ setInterval(function(){
   for(var i = 0; i < gameServer.joinedGames.length; i++){
     if(gameServer.joinedGames[i].gameActive){
       game = gameServer.joinedGames[i];
-      var b1Positions = game.bumperOne.pastStates.slice(game.bumperOne.pastStates.length - 5); //the last 4 positions of bumper one
-      var b2Positions = game.bumperTwo.pastStates.slice(game.bumperTwo.pastStates.length - 5); //the last 4 positions of bumper two
-      var ballPositions = game.ball.pastStates.slice(game.ball.pastStates.length - 5); //the last 4 positions of the ball
+      var b1Positions = game.bumperOne.pastStates.slice(game.bumperOne.pastStates.length - 4); //the last 4 positions of bumper one
+      var b2Positions = game.bumperTwo.pastStates.slice(game.bumperTwo.pastStates.length - 4); //the last 4 positions of bumper two
+      var ballPositions = game.ball.pastStates.slice(game.ball.pastStates.length - 4); //the last 4 positions of the ball
       io.to(game.host.id).emit("update", {
         b2Positions: b2Positions,
         ballPositions: ballPositions
