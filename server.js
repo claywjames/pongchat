@@ -144,6 +144,15 @@ io.on('connection', function(client) {
 
 var framesBehind = 0;
 
+var butterflyEffect = function(ball, array, framesInPast){
+  //Since the server rewinds time to check collisions and scores in the past, if there is a score or collision, all future frames must be changed
+  //this function handles that
+  array.splice((array.length - framesInPast) - 1);
+  for(i = 0; i < framesInPast; i++){
+    ball.updatePosition();
+  }
+}
+
 //Game update loop
 setInterval(function(){
   for(var i = 0; i < gameServer.joinedGames.length; i++){
@@ -160,18 +169,22 @@ setInterval(function(){
         //if the ball is on player one's side of the field
         //when calculating the frames behind, sometimes in the beginning of the game, sometimes a very high number would be calculated; thats why I used the ternary operator
         framesBehind = Math.floor(game.hostLatency / 16) > 50 ? framesBehind : Math.floor(game.hostLatency / 16);
+        console.log("array length: " + game.ball.pastStates.length);
+        console.log("frames behind: " + framesBehind);
         game.ball.xPosition = game.ball.pastStates[(game.ball.pastStates.length - framesBehind) - 1][0]; // <-- Usually this is where errors happen if they do: (game.ball.pastStates.length - framesBehind) - 1 isn't an index
         game.ball.yPosition = game.ball.pastStates[(game.ball.pastStates.length - framesBehind) - 1][1];
       }else{
         //if the ball is on player two's side of the field
         //when calculating the frames behind, sometimes in the beginning of the game, sometimes a very high number would be calculated; thats why I used the ternary operator
         framesBehind = Math.floor(game.clientLatency / 16) > 50 ? framesBehind : Math.floor(game.clientLatency / 16);
+        console.log("array length: " + game.ball.pastStates.length);
+        console.log("frames behind: " + framesBehind);
         game.ball.xPosition = game.ball.pastStates[(game.ball.pastStates.length - framesBehind) - 1][0];
         game.ball.yPosition = game.ball.pastStates[(game.ball.pastStates.length - framesBehind) - 1][1];
       }
 
       if(pong.detectCollisions(game.bumperOne, game.bumperTwo, game.ball)){
-        game.ball.pastStates.splice((game.ball.pastStates.length - framesBehind) - 1); //removes incorrect frames(calculated before collision but meant to happen after)
+        butterflyEffect(game.ball, game.ball.pastStates, framesBehind); 
         var collision = true;
       }else{
         var collision = false;
@@ -181,11 +194,11 @@ setInterval(function(){
       if(scorer == "p1"){
         io.to(game.host.id).emit("score",{player: "p1"});
         io.to(game.client.id).emit("score",{player: "p1"});
-        game.ball.pastStates.splice((game.ball.pastStates.length - framesBehind) - 1);
+        butterflyEffect(game.ball, game.ball.pastStates, framesBehind);
       }else if(scorer == "p2"){
         io.to(game.host.id).emit("score",{player: "p2"});
         io.to(game.client.id).emit("score",{player: "p2"});
-        game.ball.pastStates.splice((game.ball.pastStates.length - framesBehind) - 1);
+        butterflyEffect(game.ball, game.ball.pastStates, framesBehind);
       }else if(!collision){
         //if no score and no collision, reset ball position
         game.ball.xPosition = curBallX;
