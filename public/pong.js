@@ -161,12 +161,16 @@ if(!server){
 
   document.addEventListener("keydown", function(event){
     if(event.keyCode == 87){
+      event.preventDefault(); //stops arrow keys from scrolling screen
       keyInput.w = true;
     } else if(event.keyCode == 83){
+      event.preventDefault();
       keyInput.s = true;
     } else if(event.keyCode == 38){
+      event.preventDefault();
       keyInput.up = true;
     } else if(event.keyCode == 40){
+      event.preventDefault();
       keyInput.down = true;
     }
   })
