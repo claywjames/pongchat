@@ -1,5 +1,4 @@
 //This file contains the game logic and can be run on both the client and the server
-
 if(typeof window === "undefined") var server = true;
 
 var bumper = function(xPosition){
@@ -31,7 +30,7 @@ var bumper = function(xPosition){
 }
 
 var ball = function(){
-  //The constructor of the pong ball object
+  //The constructor of the pong Ball object
   this.height = 30;
   this.width = 30;
   this.xPosition = 435;
@@ -40,7 +39,7 @@ var ball = function(){
   this.velocity = 10;
   this.xVelocity = Math.random() < .5 ? this.velocity*Math.cos(this.angle) : -this.velocity*Math.cos(this.angle);
   this.yVelocity = Math.random() < .5 ? this.velocity*Math.sin(this.angle) : -this.velocity*Math.sin(this.angle);
-  if(server) this.pastStates = Array(60).fill([435, 285]); //records the past positions of the ball for networking purposes
+  if(server) this.pastStates = Array(60).fill([435, 285]); //records the past positions of the gameBall for networking purposes
 
   this.updatePosition = function(){
     if(server){
@@ -74,59 +73,68 @@ var ball = function(){
   }
 };
 
-function detectCollisions(b1, b2, ball){
-  var pOneXMatch = ((b1.xPosition + 25) >= ball.xPosition) && ball.xPosition > 0;
-  var pTwoXMatch = (b2.xPosition <= (ball.xPosition + 30)) && ((ball.xPosition + 30) < 900);
-  var pOneYMatch = (ball.yPosition <= (b1.yPosition + 120)) && ((ball.yPosition + 30) >= b1.yPosition);
-  var pTwoYMatch = (ball.yPosition <= (b2.yPosition + 120)) && ((ball.yPosition + 30) >= b2.yPosition);
-  if((pOneXMatch && pOneYMatch) && (ball.xVelocity < 0)){
-    //Player one hit ball
-    //calculating rebound angle based on where the ball hit the bumper
-    var intersection = (b1.yPosition + 60) - (ball.yPosition + 15);
+function detectCollisions(b1, b2, gameBall){
+  var pOneXMatch = ((b1.xPosition + 25) >= gameBall.xPosition) && gameBall.xPosition > 0;
+  var pTwoXMatch = (b2.xPosition <= (gameBall.xPosition + 30)) && ((gameBall.xPosition + 30) < 900);
+  var pOneYMatch = (gameBall.yPosition <= (b1.yPosition + 120)) && ((gameBall.yPosition + 30) >= b1.yPosition);
+  var pTwoYMatch = (gameBall.yPosition <= (b2.yPosition + 120)) && ((gameBall.yPosition + 30) >= b2.yPosition);
+  if((pOneXMatch && pOneYMatch) && (gameBall.xVelocity < 0)){
+    //Player one hit gameBall
+    //calculating rebound angle based on where the gameBall hit the bumper
+    var intersection = (b1.yPosition + 60) - (gameBall.yPosition + 15);
     var normalizedIntersection = intersection/180;
     var angleDegrees = normalizedIntersection*75;
     var angleRadians = (angleDegrees*Math.PI)/180;
-    ball.angle = angleRadians;
-    ball.xVelocity = ball.velocity*Math.cos(ball.angle);
-    ball.yVelocity = -ball.velocity*Math.sin(ball.angle);
+    gameBall.angle = angleRadians;
+    gameBall.xVelocity = gameBall.velocity*Math.cos(gameBall.angle);
+    gameBall.yVelocity = -gameBall.velocity*Math.sin(gameBall.angle);
     return true;
   };
-  if((pTwoXMatch && pTwoYMatch) && (ball.xVelocity > 0)){
-    //Player two hit ball
-    //calculating rebound angle based on where the ball hit the bumper
-    var intersection = (b2.yPosition + 60) - (ball.yPosition + 15);
+  if((pTwoXMatch && pTwoYMatch) && (gameBall.xVelocity > 0)){
+    //Player two hit gameBall
+    //calculating rebound angle based on where the gameBall hit the bumper
+    var intersection = (b2.yPosition + 60) - (gameBall.yPosition + 15);
     var normalizedIntersection = intersection/180;
     var angleDegrees = normalizedIntersection*75;
     var angleRadians = (angleDegrees*Math.PI)/180;
-    ball.angle = angleRadians;
-    ball.xVelocity = -ball.velocity*Math.cos(ball.angle);
-    ball.yVelocity = -ball.velocity*Math.sin(ball.angle);
+    gameBall.angle = angleRadians;
+    gameBall.xVelocity = -gameBall.velocity*Math.cos(gameBall.angle);
+    gameBall.yVelocity = -gameBall.velocity*Math.sin(gameBall.angle);
     return true;
   };
   return false;
 };
 
-function detectScores(p1, p2, ball){
-  if((ball.xPosition < 10) && (ball.xVelocity < 0)){
+function win(player){
+  //executes neccessary commands in case of a win
+  gameActive = false;
+  bottomDisplay.style.display = "block";
+  bottomDisplay.innerHTML = player + " Wins!";
+  var playAgain = document.createElement("div");
+  document.getElementById("playAgain").style.display = "block";
+}
+
+function detectScores(p1, p2, gameBall){
+  if((gameBall.xPosition < 10) && (gameBall.xVelocity < 0)){
     //Player two scored
     if(server){
-      p2 += 1;
-      ball.reset();
+      gameBall.reset();
       return "p2";
     }else{
       p2.incrementScore();
+      if(p2.score == 10) win("Player Two");
     }
-    ball.reset();
-  }else if((ball.xPosition > 860) && (ball.xVelocity > 0)){
+    gameBall.reset();
+  }else if((gameBall.xPosition > 860) && (gameBall.xVelocity > 0)){
     //Player one scored
     if(server){
-      p1 += 1;
-      ball.reset();
+      gameBall.reset();
       return "p1";
     }else{
       p1.incrementScore();
+      if(p1.score == 10) win("Player One");
     }
-    ball.reset();
+    gameBall.reset();
   }
 };
 
@@ -143,6 +151,10 @@ if(!server){
   var bottomDisplay = document.getElementById("bottomDisplay"); //Gives instructions to the player
   var canvas = document.getElementById("pong");
   var context = canvas.getContext("2d");
+  context.fillStyle = "white";
+  context.setLineDash([10,5]);
+  context.strokeStyle = "white";
+  context.font = "30px monospace, serif";
 
   if(window.location.pathname == "/twoplayer_online"){
     //If the player is playing another player over the internet
@@ -152,22 +164,32 @@ if(!server){
     var updateIndex = 0; //used to loop through frames given by server in array form
     var opponentFound = false;
     var opponentPositions = Array(4).fill(0); //variable updated by server and looped through with updateIndex;
-    var ballPositions = Array(4).fill([435, 285]); //variable updated by server and looped through with updateIndex;
-    //Adds the client.js file to the pong html page
+    var gameBallPositions = Array(4).fill([435, 285]); //variable updated by server and looped through with updateIndex;
+    //Adds the client.js file to the pong html file
     var client_script = document.createElement("script");
     client_script.setAttribute("src", "client.js");
     document.body.appendChild(client_script);
+    //Adds chat button to pong html file
+    var chat = document.createElement("div");
+    chat.innerHTML = "Chat"
+    chat.setAttribute("id", "chat-button");
+    chat.onclick = function(){alert("This feature is still in development.")}
+    document.body.appendChild(chat);
+    function createChat(){
+      //Adds the chat iframe to the pong html file
+      var iframe = document.createElement("iframe");
+      iframe.setAttribute("src", "chat.html");
+      document.body.appendChild(iframe);
+    }
   }
 
   document.addEventListener("keydown", function(event){
     if(event.keyCode == 87){
-      event.preventDefault(); //stops arrow keys from scrolling screen
       keyInput.w = true;
     } else if(event.keyCode == 83){
-      event.preventDefault();
       keyInput.s = true;
     } else if(event.keyCode == 38){
-      event.preventDefault();
+      event.preventDefault(); //prevent arrow keys from scrolling screen
       keyInput.up = true;
     } else if(event.keyCode == 40){
       event.preventDefault();
@@ -192,21 +214,15 @@ if(!server){
     down : false
   };
 
-  var playerOneBumper = new bumper(0)
-  var playerTwoBumper = new bumper(875)
-  var ball = new ball()
-
   var score = function(playerID){
     //Constructor for the score object
-    var player = document.getElementById(playerID);
-    this.score = parseInt(player.innerHTML, 10);
+    this.score = 0;
+    this.scoreString = "00";
     this.incrementScore = function(){
       this.score += 1;
-      player.innerHTML = this.score;
+      this.scoreString = this.score < 10 ? "0" + this.score.toString() : this.score.toString();
     }
   }
-  var playerOneScore = new score("playerOneScore")
-  var playerTwoScore = new score("playerTwoScore")
 
   function update(){
     if(onlinePong){
@@ -246,51 +262,70 @@ if(!server){
       }else{
         playerOneBumper.yPosition = opponentPositions[updateIndex];
       }
-      ball.xPosition = ballPositions[updateIndex][0];
-      ball.yPosition = ballPositions[updateIndex][1];
+      gameBall.xPosition = gameBallPositions[updateIndex][0];
+      gameBall.yPosition = gameBallPositions[updateIndex][1];
       if(updateIndex < 3) updateIndex += 1;
-      console.log(updateIndex);
 
       //implementing client side prediction on collisions
-      if(detectCollisions(playerOneBumper, playerTwoBumper, ball)){
+      if(detectCollisions(playerOneBumper, playerTwoBumper, gameBall)){
         for(var i = updateIndex; i < 5; i++){
-          ball.updatePosition();
-          ballPositions[i] = [ball.xPosition, ball.yPosition];
+          gameBall.updatePosition();
+          gameBallPositions[i] = [gameBall.xPosition, gameBall.yPosition];
         }
       }
     }else{
       //For a game played on one computer
-      detectCollisions(playerOneBumper, playerTwoBumper, ball)
-      detectScores(playerOneScore, playerTwoScore, ball)
+      detectCollisions(playerOneBumper, playerTwoBumper, gameBall)
+      detectScores(playerOneScore, playerTwoScore, gameBall)
       if(keyInput.w) playerOneBumper.moveUp()
       if(keyInput.s) playerOneBumper.moveDown()
       if(keyInput.up) playerTwoBumper.moveUp()
       if(keyInput.down) playerTwoBumper.moveDown()
-      ball.updatePosition()
+      gameBall.updatePosition()
     }
   }
 
   function draw(){
     playerOneBumper.draw()
     playerTwoBumper.draw()
-    ball.draw()
+    gameBall.draw()
+    context.fillText(playerOneScore.scoreString, 405, 50);
+    context.fillText(playerTwoScore.scoreString, 460, 50);
+    //draw dashed line down center of canvas
+    context.beginPath()
+    context.moveTo(450, 0);
+    context.lineTo(450, 600);
+    context.stroke();
   }
 
   function mainloop(){
     context.clearRect(0, 0, 900, 600) //erase canvas
     update()
     draw()
-    window.requestAnimationFrame(mainloop)
+    console.log(gameActive);
+    if(gameActive) window.requestAnimationFrame(mainloop)
   }
 
-  draw()
+  var playAgainButton = document.getElementById("playAgain")
+  playAgainButton.onclick = startGame
+  function startGame(){
+    playAgainButton.style.display = "none";
+    context.clearRect(0, 0, 900, 600)
+    playerOneBumper = new bumper(0)
+    playerTwoBumper = new bumper(875)
+    gameBall = new ball()
+    playerOneScore = new score()
+    playerTwoScore = new score()
+    draw()
+    bottomDisplay.innerHTML = "Press The Spacebar When Ready";
+  }
+  startGame()
   var gameActive = false;
   document.addEventListener("keydown", function(event){
     if(event.keyCode == 32 && gameActive == false){
       //if the space bar is pressed before the game has started(used to communicate player readiness)
       if(onlinePong){
         if(opponentFound){
-          console.log(role + " ready");
           bottomDisplay.innerHTML = "Ready. Waiting on opponent";
           socket.emit("ready")
         }

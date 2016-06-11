@@ -188,13 +188,23 @@ setInterval(function(){
 
       scorer = pong.detectScores(game.p1Score, game.p2Score, game.ball); //will return "p1" or "p2" if a score happens
       if(scorer == "p1"){
+        game.p1Score += 1;
         io.to(game.host.id).emit("score",{player: "p1"});
         io.to(game.client.id).emit("score",{player: "p1"});
         butterflyEffect(game.ball, game.ball.pastStates, framesBehind);
+        if(game.p1Score == 10){
+          io.to(game.host.id).emit("win", {player: "p1"});
+          io.to(game.client.id).emit("win", {player: "p1"});
+        }
       }else if(scorer == "p2"){
+        game.p2Score += 1;
         io.to(game.host.id).emit("score",{player: "p2"});
         io.to(game.client.id).emit("score",{player: "p2"});
         butterflyEffect(game.ball, game.ball.pastStates, framesBehind);
+        if(game.p2Score == 10){
+          io.to(game.host.id).emit("win", {player: "p2"});
+          io.to(game.client.id).emit("win", {player: "p2"});
+        }
       }else if(!collision){
         //if no score and no collision, reset ball position
         game.ball.xPosition = curBallX;

@@ -46,7 +46,7 @@ socket.on("update", function(data){
   }else{
     opponentPositions = data.b1Positions;
   }
-  ballPositions = data.ballPositions;
+  gameBallPositions = data.ballPositions;
   updateIndex = 0;
 })
 
@@ -56,5 +56,19 @@ socket.on("score", function(data){
     playerOneScore.incrementScore()
   }else if(data.player == "p2"){
     playerTwoScore.incrementScore()
+  }
+})
+
+socket.on("win", function(data){
+  gameActive = false;
+  //turning the playAgainButton(meant for offline mode) into the newGameButton
+  var newGameButton = playAgainButton;
+  newGameButton.onclick = function(){location.reload()}
+  newGameButton.style.display = "block";
+  newGameButton.innerHTML = "New Game";
+  if(data.player == "p1"){
+    bottomDisplay.innerHTML = "Player One Wins";
+  }else{
+    bottomDisplay.innerHTML = "Player Two Wins";
   }
 })

@@ -3,36 +3,54 @@ header{
   font-family: monospace, serif;
   margin-top: -20px;
   font-size: 25px;
-  background-color: lavender;
-}
-
-#playerOneScore{
-  position: relative;
-  font-size: 50px;
-  float: left;
-  left: 50%;
-  margin-left: -500px;
-}
-
-#playerTwoScore{
-  position: relative;
-  font-size: 50px;
-  float: right;
-  right: 50%;
-  margin-right: -500px;
 }
 
 #pong {
-  position:absolute;
-  border: 1px solid black;
+  position: absolute;
+  border: 10px solid black;
   left: 50%;
   margin-left: -450px;
+  background-color: black;
 }
 
 #bottomDisplay{
   font-size: 25px;
-  margin-top: 650px;
+  margin-top: 660px;
   margin-left: auto;
   margin-right: auto;
   text-align: center;
+  font-family: monospace, serif;
+}
+
+#chat-button{
+  position: absolute;
+  cursor: pointer;
+  top: 790px;
+  height: 60px;
+  width: 120px;
+  background-color: black;
+  color: white;
+  font-family: monospace, serif;
+  font-size: 40px;
+  text-align: center;
+  line-height: 60px;
+  left: 50%;
+  margin-left: -60px;
+}
+
+#playAgain{
+  position: absolute;
+  display: none;
+  cursor: pointer;
+  top: 40%;
+  height: 60px;
+  width: 200px;
+  background-color: white;
+  color: black;
+  font-family: monospace, serif;
+  font-size: 20px;
+  text-align: center;
+  line-height: 60px;
+  left: 50%;
+  margin-left: -100px;
 }
