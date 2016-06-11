@@ -9,18 +9,18 @@ var bumper = function(xPosition){
   this.yPosition = 0;
   if(server) this.pastStates = Array(60).fill(0); //records the past y-positions of a bumper for networking purposes
   this.moveDown = function(){
-    if(this.yPosition <= 465){
-      this.yPosition += 15;
+    if(this.yPosition <= 460){
+      this.yPosition += 20;
     } else if(this.yPosition < 480){
       this.yPosition += (480 - this.yPosition);
     }
   }
 
   this.moveUp = function(){
-    if(this.yPosition >= 15){
-      this.yPosition -=15;
+    if(this.yPosition >= 20){
+      this.yPosition -= 20;
     } else if(this.yPosition > 0){
-      this.yPosition += this.yPosition;
+      this.yPosition -= this.yPosition;
     }
   }
 
@@ -36,7 +36,7 @@ var ball = function(){
   this.xPosition = 435;
   this.yPosition = 285;
   this.angle = (Math.random()*50*Math.PI)/180; //a random angle from 0-60 degrees; in radians
-  this.velocity = 10;
+  this.velocity = 13;
   this.xVelocity = Math.random() < .5 ? this.velocity*Math.cos(this.angle) : -this.velocity*Math.cos(this.angle);
   this.yVelocity = Math.random() < .5 ? this.velocity*Math.sin(this.angle) : -this.velocity*Math.sin(this.angle);
   if(server) this.pastStates = Array(60).fill([435, 285]); //records the past positions of the gameBall for networking purposes
@@ -58,7 +58,7 @@ var ball = function(){
   },
 
   this.set = function(){
-    this.velocity = 10;
+    this.velocity = 13;
     this.angle = ((Math.random()*50)*Math.PI)/180;
     this.xVelocity = Math.random() < .5 ? this.velocity*Math.cos(this.angle) : -this.velocity*Math.cos(this.angle);
     this.yVelocity = Math.random() < .5 ? this.velocity*Math.sin(this.angle) : -this.velocity*Math.sin(this.angle);
