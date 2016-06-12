@@ -169,13 +169,13 @@ setInterval(function(){
         //if the ball is on player one's side of the field
         //when calculating the frames behind, sometimes in the beginning of the game, sometimes a very high number would be calculated; thats why I used the ternary operator
         framesBehind = Math.floor(game.hostLatency / 16) > 50 ? framesBehind : Math.floor(game.hostLatency / 16);
-        game.ball.xPosition = game.ball.pastStates[(game.ball.pastStates.length - framesBehind) - 1][0]; // <-- Usually this is where errors happen if they do: (game.ball.pastStates.length - framesBehind) - 1 isn't an index
+        game.ball.xPosition = game.ball.pastStates[(game.ball.pastStates.length - framesBehind) - 1][0];
         game.ball.yPosition = game.ball.pastStates[(game.ball.pastStates.length - framesBehind) - 1][1];
       }else{
         //if the ball is on player two's side of the field
         //when calculating the frames behind, sometimes in the beginning of the game, sometimes a very high number would be calculated; thats why I used the ternary operator
         framesBehind = Math.floor(game.clientLatency / 16) > 50 ? framesBehind : Math.floor(game.clientLatency / 16);
-        game.ball.xPosition = game.ball.pastStates[(game.ball.pastStates.length - framesBehind) - 1][0];
+        game.ball.xPosition = game.ball.pastStates[(game.ball.pastStates.length - framesBehind) - 1][0]; // <-- Usually this is where errors happen if they do: (game.ball.pastStates.length - framesBehind) - 1 isn't an index
         game.ball.yPosition = game.ball.pastStates[(game.ball.pastStates.length - framesBehind) - 1][1];
       }
 
