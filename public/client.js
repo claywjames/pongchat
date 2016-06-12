@@ -36,7 +36,10 @@ socket.on("begin", function(){
   //runs when both the host and client of a game have indicated they are ready to begin
   gameActive = true;
   bottomDisplay.style.display = "none";
-  mainloop()
+  window.requestAnimationFrame(mainloop)
+  context.clearRect(0, 0, 900, 600) //erase canvas
+  update()
+  draw()
 })
 
 socket.on("update", function(data){
@@ -66,6 +69,7 @@ socket.on("win", function(data){
   newGameButton.onclick = function(){location.reload()}
   newGameButton.style.display = "block";
   newGameButton.innerHTML = "New Game";
+  bottomDisplay.style.display = "block";
   if(data.player == "p1"){
     bottomDisplay.innerHTML = "Player One Wins";
   }else{

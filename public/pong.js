@@ -58,7 +58,6 @@ var ball = function(){
   },
 
   this.set = function(){
-    this.velocity = 10;
     this.angle = ((Math.random()*50)*Math.PI)/180;
     this.xVelocity = Math.random() < .5 ? this.velocity*Math.cos(this.angle) : -this.velocity*Math.cos(this.angle);
     this.yVelocity = Math.random() < .5 ? this.velocity*Math.sin(this.angle) : -this.velocity*Math.sin(this.angle);
@@ -299,11 +298,13 @@ if(!server){
   }
 
   function mainloop(){
-    context.clearRect(0, 0, 900, 600) //erase canvas
-    update()
-    draw()
-    console.log(gameActive);
-    if(gameActive) window.requestAnimationFrame(mainloop)
+    //using setTimeout to ensure 60fps
+    setTimeout(function(){
+      if(gameActive) window.requestAnimationFrame(mainloop)
+      context.clearRect(0, 0, 900, 600) //erase canvas
+      update()
+      draw()
+    }, (1000 / 60));
   }
 
   var playAgainButton = document.getElementById("playAgain")
