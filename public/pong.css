@@ -38,6 +38,47 @@ header{
   margin-left: -60px;
 }
 
+#chatBox{
+  height: 600px;
+  width: 950px;
+  background-color: white;
+  position: absolute;
+  border: 1px solid black;
+  margin-top: 10px;
+  left: 50%;
+  margin-left: -465px;
+}
+
+form{
+  position: fixed;
+  margin-top: 570px;
+}
+
+#textBox {
+  width: 870px;
+  margin-left: 10px;
+}
+
+.ownMessage{
+  float: right;
+  clear: both;
+  background-color: #DCDCDC;
+  margin-top: 5px;
+  margin-left: 2px;
+  border-radius: 10px;
+  padding: 5px;
+}
+
+.opponentMessage{
+  float: left;
+  clear: both;
+  background-color: #CBD4FF;
+  margin-top: 5px;
+  margin-left: 2px;
+  border-radius: 10px;
+  padding: 5px;
+}
+
 #playAgain{
   position: absolute;
   display: none;

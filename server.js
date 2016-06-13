@@ -140,6 +140,13 @@ io.on('connection', function(client) {
     game.bumperTwo.pastStates.push(game.bumperTwo.yPosition);
     game.bumperTwo.pastStates.splice(0,1);
   })
+
+  client.on("message", function(data){
+    //if a client sends a message intended for his opponent
+    var game = gameServer.findGameByClient(client);
+    io.to(game.host.id).emit("message", {sender: data.sender, message: data.message})
+    if(game.client) io.to(game.client.id).emit("message", {sender: data.sender, message: data.message})
+  })
 })
 
 var framesBehind = 0;

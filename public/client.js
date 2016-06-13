@@ -76,3 +76,15 @@ socket.on("win", function(data){
     bottomDisplay.innerHTML = "Player Two Wins";
   }
 })
+
+socket.on("message", function(data){
+  //when recieving a chat message from server(could be own message)
+  var message = document.createElement("div");
+  message.innerHTML = data.message;
+  if(role == data.sender){
+    message.setAttribute("class", "ownMessage");
+  }else{
+    message.setAttribute("class", "opponentMessage");
+  }
+  chatBox.appendChild(message);
+})

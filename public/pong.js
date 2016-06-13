@@ -172,13 +172,21 @@ if(!server){
     var chat = document.createElement("div");
     chat.innerHTML = "Chat"
     chat.setAttribute("id", "chat-button");
-    chat.onclick = function(){alert("This feature is still in develop")}
+    chat.onclick = function(){
+      var chatBox = document.getElementById("chatBox");
+      if(chatBox.style.display == "none"){
+        chatBox.style.display = "block";
+      }else{
+        chatBox.style.display = "none";
+      }
+    }
     document.body.appendChild(chat);
-    function createChat(){
-      //Adds the chat iframe to the pong html file
-      var iframe = document.createElement("iframe");
-      iframe.setAttribute("src", "chat.html");
-      document.body.appendChild(iframe);
+    var submit = document.getElementById("submit");
+    submit.onclick = function(){
+      var message = document.getElementById("textBox").value;
+      socket.emit("message", {sender: role, message: message});
+      document.getElementById("textBox").value = "";
+      return false;
     }
   }
 
@@ -326,7 +334,8 @@ if(!server){
     if(event.keyCode == 32 && gameActive == false){
       //if the space bar is pressed before the game has started(used to communicate player readiness)
       if(onlinePong){
-        if(opponentFound){
+        if(opponentFound && chatBox.style.display == "none"){
+          //if an opponent has been found and you are not chatting with them
           bottomDisplay.innerHTML = "Ready. Waiting on opponent";
           socket.emit("ready")
         }

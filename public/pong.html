@@ -9,6 +9,12 @@
       <h1>PongChat</h1>
     </header>
     <canvas id = "pong", height="600px", width="900px"></canvas>
+    <div id = "chatBox" style = "display: none">
+      <form>
+        <input required id = "textBox" placeholder="Send opponent a message..."/>
+        <input id = "submit" type = "submit" value = "send"/>
+      </form>
+    </div>
     <div id = "bottomDisplay"></div>
     <div id = "playAgain">Play Again</div>
     <script src = "/socket.io/socket.io.js"></script>
