@@ -79,6 +79,7 @@ socket.on("win", function(data){
 
 socket.on("message", function(data){
   //when recieving a chat message from server(could be own message)
+  var messageField = document.getElementById("messageField");
   var message = document.createElement("div");
   message.innerHTML = data.message;
   if(role == data.sender){
@@ -86,5 +87,6 @@ socket.on("message", function(data){
   }else{
     message.setAttribute("class", "opponentMessage");
   }
-  chatBox.appendChild(message);
+  messageField.appendChild(message);
+  document.getElementById("chatBox").style.display = "block";
 })

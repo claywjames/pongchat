@@ -47,6 +47,7 @@ header{
   margin-top: 10px;
   left: 50%;
   margin-left: -465px;
+  z-index: 1;
 }
 
 form{
@@ -59,6 +60,17 @@ form{
   margin-left: 10px;
 }
 
+#messageField{
+  position: absolute;
+  height: 565px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: white;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
 .ownMessage{
   float: right;
   clear: both;
@@ -67,6 +79,8 @@ form{
   margin-left: 2px;
   border-radius: 10px;
   padding: 5px;
+  max-width: 400px;
+  word-wrap: break-word;
 }
 
 .opponentMessage{
@@ -77,6 +91,8 @@ form{
   margin-left: 2px;
   border-radius: 10px;
   padding: 5px;
+  max-width: 400px;
+  word-wrap: break-word;
 }
 
 #playAgain{

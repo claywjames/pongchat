@@ -200,7 +200,7 @@ setInterval(function(){
         io.to(game.client.id).emit("score",{player: "p1"});
         butterflyEffect(game.ball, game.ball.pastStates, framesBehind);
         if(game.p1Score == 10){
-          gameServer.deleteGame(game);
+          game.gameActive = false;
           io.to(game.host.id).emit("win", {player: "p1"});
           io.to(game.client.id).emit("win", {player: "p1"});
         }
@@ -210,7 +210,7 @@ setInterval(function(){
         io.to(game.client.id).emit("score",{player: "p2"});
         butterflyEffect(game.ball, game.ball.pastStates, framesBehind);
         if(game.p2Score == 10){
-          gameServer.deleteGame(game);
+          game.gameActive = false;
           io.to(game.host.id).emit("win", {player: "p2"});
           io.to(game.client.id).emit("win", {player: "p2"});
         }

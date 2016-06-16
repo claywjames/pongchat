@@ -175,7 +175,7 @@ if(!server){
     chat.onclick = function(){
       var chatBox = document.getElementById("chatBox");
       if(chatBox.style.display == "none"){
-        chatBox.style.display = "block";
+        if(gameActive == false) chatBox.style.display = "block";
       }else{
         chatBox.style.display = "none";
       }
