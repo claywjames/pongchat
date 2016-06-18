@@ -49,6 +49,7 @@ socket.on("update", function(data){
   }else{
     opponentPositions = data.b1Positions;
   }
+  time = data.time;
   gameBallPositions = data.ballPositions;
   updateIndex = 0;
 })

@@ -124,7 +124,7 @@ io.on('connection', function(client) {
   client.on("host_update", function(data){
     //when the client who is the host of a game sends a game update
     var game = gameServer.findGameByClient(client);
-    game.hostLatency = (2 * (Date.now() - data.t)) + 64; // 2 * trip time = round trip; round trip + 64(clients are updated every 64ms with an array of positions) = total latency in ms
+    game.hostLatency = (Date.now() - data.t) + 64; // round trip + 64(clients are updated every 64ms with an array of positions) = total latency in ms
     if(data.request == "up"){game.bumperOne.moveUp()}
     else if(data.request == "down"){game.bumperOne.moveDown()}
     game.bumperOne.pastStates.push(game.bumperOne.yPosition);
@@ -134,7 +134,7 @@ io.on('connection', function(client) {
   client.on("client_update", function(data){
     //when the client who is the client of a game sends a game update
     var game = gameServer.findGameByClient(client);
-    game.clientLatency = (2 * (Date.now() - data.t)) + 64; // 2 * trip time = round trip; round trip + 64(clients are updated every 64ms with an array of positions) = total latency in ms
+    game.clientLatency = (Date.now() - data.t) + 64; // round trip + 64(clients are updated every 64ms with an array of positions) = total latency in ms
     if(data.request == "up"){game.bumperTwo.moveUp()}
     else if(data.request == "down"){game.bumperTwo.moveDown()}
     game.bumperTwo.pastStates.push(game.bumperTwo.yPosition);
@@ -175,17 +175,17 @@ setInterval(function(){
       if(game.ball.xPosition < 450){
         //if the ball is on player one's side of the field
         //when calculating the frames behind, sometimes in the beginning of the game, sometimes a very high number would be calculated; thats why I used the ternary operator
-        framesBehind = Math.floor(game.hostLatency / 16) > 50 ? framesBehind : Math.floor(game.hostLatency / 16);
+        framesBehind = Math.floor(game.hostLatency / 16) > 50 || Math.floor(game.hostLatency / 16) < 0 ? framesBehind : Math.floor(game.hostLatency / 16);
         game.ball.xPosition = game.ball.pastStates[(game.ball.pastStates.length - framesBehind) - 1][0];
         game.ball.yPosition = game.ball.pastStates[(game.ball.pastStates.length - framesBehind) - 1][1];
       }else{
         //if the ball is on player two's side of the field
         //when calculating the frames behind, sometimes in the beginning of the game, sometimes a very high number would be calculated; thats why I used the ternary operator
-        framesBehind = Math.floor(game.clientLatency / 16) > 50 ? framesBehind : Math.floor(game.clientLatency / 16);
-        game.ball.xPosition = game.ball.pastStates[(game.ball.pastStates.length - framesBehind) - 1][0]; // <-- Usually this is where errors happen if they do: (game.ball.pastStates.length - framesBehind) - 1 isn't an index
+        framesBehind = Math.floor(game.clientLatency / 16) > 50 || Math.floor(game.clientLatency / 16) < 0 ? framesBehind : Math.floor(game.clientLatency / 16);
+        game.ball.xPosition = game.ball.pastStates[(game.ball.pastStates.length - framesBehind) - 1][0];
         game.ball.yPosition = game.ball.pastStates[(game.ball.pastStates.length - framesBehind) - 1][1];
       }
-
+      console.log(framesBehind)
       if(pong.detectCollisions(game.bumperOne, game.bumperTwo, game.ball)){
         butterflyEffect(game.ball, game.ball.pastStates, framesBehind);
         var collision = true;
@@ -234,11 +234,13 @@ setInterval(function(){
       var ballPositions = game.ball.pastStates.slice(game.ball.pastStates.length - 4); //the last 4 positions of the ball
       io.to(game.host.id).emit("update", {
         b2Positions: b2Positions,
-        ballPositions: ballPositions
+        ballPositions: ballPositions,
+        time: Date.now()
       });
       io.to(game.client.id).emit("update", {
         b1Positions: b1Positions,
-        ballPositions: ballPositions
+        ballPositions: ballPositions,
+        time: Date.now()
       });
     }
   }

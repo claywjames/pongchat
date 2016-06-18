@@ -9,13 +9,12 @@ header{
   position: absolute;
   border: 10px solid black;
   left: 50%;
-  margin-left: -450px;
   background-color: black;
 }
 
 #bottomDisplay{
   font-size: 25px;
-  margin-top: 660px;
+  margin-top: 0%;
   margin-left: auto;
   margin-right: auto;
   text-align: center;
@@ -25,7 +24,7 @@ header{
 #chat-button{
   position: absolute;
   cursor: pointer;
-  top: 790px;
+  top: 87%;
   height: 60px;
   width: 120px;
   background-color: black;
@@ -44,25 +43,35 @@ header{
   background-color: white;
   position: absolute;
   border: 1px solid black;
-  margin-top: 10px;
+  margin-top: -2%;
   left: 50%;
-  margin-left: -465px;
   z-index: 1;
 }
 
 form{
-  position: fixed;
-  margin-top: 570px;
+  position: absolute;
+  width: 100%;
+  top: 95%;
+  height: 5%;
 }
 
 #textBox {
-  width: 870px;
-  margin-left: 10px;
+  position: absolute;
+  width: 90%;
+  height: 90%;
+  padding: 0px;
+}
+
+#submit {
+  position: absolute;
+  width: 10%;
+  left: 90%;
+  height: 100%;
 }
 
 #messageField{
   position: absolute;
-  height: 565px;
+  height: 95%;
   width: 100%;
   margin: 0;
   padding: 0;

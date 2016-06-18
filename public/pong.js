@@ -147,6 +147,30 @@ if(typeof module != "undefined"){
 
 if(!server){
   //If the code is being run by the client
+
+  function resize(){
+  //resizes and positions elements on the website according to resolution
+
+  //resizes the canvas(canvas has same number of pixels, but is a different size)
+    var canvas = document.getElementById("pong");
+    var newHeight = window.innerHeight - (window.innerHeight / 2.5);
+    var newWidth = newHeight * (3/2)
+    canvas.style.height = newHeight + "px";
+    canvas.style.width = newWidth + "px";
+  //centering the canvas
+    canvas.style.marginLeft = -(newWidth / 2) + "px";
+  //correctly positioning bottomDisplay
+    var bottomDisplay = document.getElementById("bottomDisplay");
+    bottomDisplay.style.marginTop = (newHeight + 60) + "px"
+  //resizing the chatBox
+    var chatBox = document.getElementById("chatBox");
+    chatBox.style.height = (newHeight + 50) + "px";
+    chatBox.style.width = (newWidth + 50) + "px";
+  //centering chatBox
+    chatBox.style.marginLeft = -((newWidth + 50) / 2) + "px";
+  }
+  resize();
+  window.addEventListener("resize", resize);
   var bottomDisplay = document.getElementById("bottomDisplay"); //Gives instructions to the player
   var canvas = document.getElementById("pong");
   var context = canvas.getContext("2d");
@@ -160,6 +184,7 @@ if(!server){
     var onlinePong = true;
     var role = null; //client / host of game
     var game = null; //game id
+    var time = Date.now(); //used for lag compensation on server
     var updateIndex = 0; //used to loop through frames given by server in array form
     var opponentFound = false;
     var opponentPositions = Array(4).fill(0); //variable updated by server and looped through with updateIndex;
@@ -240,26 +265,26 @@ if(!server){
       //uses client side prediction to reduce lag
       if(up && !down){
         if(role == "host"){
-          socket.emit("host_update", {request: "up", t: Date.now()})
+          socket.emit("host_update", {request: "up", t: time})
           playerOneBumper.moveUp()
         }else{
-          socket.emit("client_update", {request: "up", t: Date.now()})
+          socket.emit("client_update", {request: "up", t: time})
           playerTwoBumper.moveUp()
         }
       }else if(!up && down){
         if(role == "host"){
-          socket.emit("host_update", {request: "down", t: Date.now()})
+          socket.emit("host_update", {request: "down", t: time})
           playerOneBumper.moveDown()
         }else{
-          socket.emit("client_update", {request: "down", t: Date.now()})
+          socket.emit("client_update", {request: "down", t: time})
           playerTwoBumper.moveDown()
         }
       }
       else{
         if(role == "host"){
-          socket.emit("host_update", {request: "none", t: Date.now()})
+          socket.emit("host_update", {request: "none", t: time})
         }else{
-          socket.emit("client_update", {request: "none", t: Date.now()})
+          socket.emit("client_update", {request: "none", t: time})
         }
       }
 
@@ -280,6 +305,7 @@ if(!server){
           gameBallPositions[i] = [gameBall.xPosition, gameBall.yPosition];
         }
       }
+      time += 16; //adding one frame time
     }else{
       //For a game played on one computer
       detectCollisions(playerOneBumper, playerTwoBumper, gameBall)
