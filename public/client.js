@@ -66,6 +66,7 @@ socket.on("score", function(data){
 socket.on("win", function(data){
   gameActive = false;
   //turning the playAgainButton(meant for offline mode) into the newGameButton
+  gameOver = true;
   var newGameButton = playAgainButton;
   newGameButton.onclick = function(){location.reload()}
   newGameButton.style.display = "block";

@@ -184,6 +184,7 @@ if(!server){
     var onlinePong = true;
     var role = null; //client / host of game
     var game = null; //game id
+    var gameOver = false;
     var time = Date.now(); //used for lag compensation on server
     var updateIndex = 0; //used to loop through frames given by server in array form
     var opponentFound = false;
@@ -360,7 +361,7 @@ if(!server){
     if(event.keyCode == 32 && gameActive == false){
       //if the space bar is pressed before the game has started(used to communicate player readiness)
       if(onlinePong){
-        if(opponentFound && chatBox.style.display == "none"){
+        if(opponentFound && chatBox.style.display == "none" && gameOver == false){
           //if an opponent has been found and you are not chatting with them
           bottomDisplay.innerHTML = "Ready. Waiting on opponent";
           socket.emit("ready")
