@@ -8,3 +8,5 @@ http://www.gabrielgambetta.com/fpm1.html
 
 
 To test the multiplayer capabilities, open the game in two separate tabs.
+
+So far the game has only been tested in google chrome.  There do appear to be issues when attempting to play with Internet Explorer.
