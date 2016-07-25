@@ -179,6 +179,7 @@ if(!server){
   context.strokeStyle = "white";
   context.font = "30px monospace, serif";
 
+  var instructionsButton = document.getElementById("instructions");
   if(window.location.pathname == "/twoplayer_online"){
     //If the player is playing another player over the internet
     var onlinePong = true;
@@ -198,6 +199,7 @@ if(!server){
     var chat = document.createElement("div");
     chat.innerHTML = "Chat"
     chat.setAttribute("id", "chat-button");
+    chat.setAttribute("class", "button");
     chat.onclick = function(){
       var chatBox = document.getElementById("chatBox");
       if(chatBox.style.display == "none"){
@@ -213,6 +215,14 @@ if(!server){
       socket.emit("message", {sender: role, message: message});
       document.getElementById("textBox").value = "";
       return false;
+    }
+    instructionsButton.onclick = function(){
+      var direction = role === "host" ? "left." : "right.";
+      alert("Use the up and down arrow keys or the w and s keys to move your paddle.  You are on the " + direction);
+    }
+  }else{
+    instructionsButton.onclick = function(){
+      alert("The player on the left must use the w and s keys to move.  The player on the right must use the up and down arrow keys");
     }
   }
 
