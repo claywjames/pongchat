@@ -5,3 +5,6 @@ This project was an attempt to learn about real time online gaming and web socke
 
 http://buildnewgames.com/real-time-multiplayer/
 http://www.gabrielgambetta.com/fpm1.html
+
+
+To test the multiplayer capabilities, open the game in two separate tabs.
